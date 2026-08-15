@@ -306,6 +306,26 @@ def run_performance_test():
     
     print("  ✅ Performance tests passed!")
 
+
+def test_automation_entrypoint():
+    """Verify the CLI automation path selects a device and executes recommended methods."""
+    from types import SimpleNamespace
+
+    import main
+
+    config = create_test_config()
+    device = create_test_device()
+
+    with patch('main.DeviceManager.scan_devices', return_value=[device]), \
+         patch('src.bypass.bypass_manager.BypassManager.get_recommended_methods',
+               return_value=[SimpleNamespace(name='adb_setup_wizard')]), \
+         patch('src.bypass.bypass_manager.BypassManager.execute_bypass',
+               return_value={'result': BypassResult.SUCCESS, 'message': 'success'}):
+        exit_code = main._run_automation(config)
+
+    assert exit_code == 0
+
+
 def main():
     """Run all AI feature tests."""
     print("🚀 Starting FRP Freedom AI Features Test Suite")
